@@ -21,20 +21,11 @@ import {fileURLToPath} from 'url';
 
  
 const initApp=(app,express)=>{
-
-  //  app.use(async(req,res,next)=>{
-    //    console.log(req.header('origin'));
-    //    var whitelist = ['http://127.0.0.1:3000', 'http://example2.com'];
-   //     if(!whitelist.includes(req.header('origin'))){
-    //        return next( new Error('invalid origin', {cause: 403}));
-    //    }
-    //    next();
-   // })
-   
-
-    //app.use(cors());
     connectDB();
     app.use(express.json());
+    app.use('/', (req,res)=>{
+        return res.json({message:"Welcome"});
+    })
     app.use('/upload',express.static(fullPath));
     app.use("/auth", AuthRouter);
     app.use('/user', UserRouter);
@@ -56,3 +47,15 @@ const initApp=(app,express)=>{
 }
 
 export default initApp;
+
+//  //  app.use(async(req,res,next)=>{
+    //    console.log(req.header('origin'));
+    //    var whitelist = ['http://127.0.0.1:3000', 'http://example2.com'];
+   //     if(!whitelist.includes(req.header('origin'))){
+    //        return next( new Error('invalid origin', {cause: 403}));
+    //    }
+    //    next();
+   // })
+   
+
+    //app.use(cors());
