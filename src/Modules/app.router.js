@@ -23,9 +23,7 @@ import {fileURLToPath} from 'url';
 const initApp=(app,express)=>{
     connectDB();
     app.use(express.json());
-    app.use('/', (req,res)=>{
-        return res.json({message:"Welcome"});
-    })
+    
     app.use('/upload',express.static(fullPath));
     app.use("/auth", AuthRouter);
     app.use('/user', UserRouter);
