@@ -7,11 +7,9 @@ import userModel from "../../../../DB/model/User.model.js";
 import { pegenation } from "../../../Services/pegenation.js";
 import reviewModel from "../../../../DB/model/Review.model.js";
 
-
-
 export const createProduct = async(req, res, next)=>{
     const {price ,discount ,categoryId, subCategoryId, brandId} = req.body; 
-
+    
     const name = req.body.name.toLowerCase();
     if(await productModel.findOne({name})){
         return next(new Error('This product already exist', {cause:409}))

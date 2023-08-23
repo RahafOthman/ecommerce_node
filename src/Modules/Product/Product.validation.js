@@ -20,9 +20,6 @@ export const createProduct = joi.object({
 
 export const updateProduct = joi.object({
     productId: generalFeilds.id ,
-    categoryId:generalFeilds.id ,
-    subCategoryId: generalFeilds.id ,
-    brandId: generalFeilds.id ,
     name:joi.string().min(2).max(20),
     file: generalFeilds.file,
 }).required();
