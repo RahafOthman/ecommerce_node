@@ -77,7 +77,25 @@ export const createOrder = async(req, res, next)=>{
             products:{productId:{$in:productIds}},
         }
     });
-   
+    const invoice = {
+        shipping: {
+          name: req.user.userName,
+          address: "Betunia",
+          city: "Ramallah",
+        state:"west Bank",
+         country: "Palestine"
+        },
+        items: order.products,
+        subTotal,
+        total: order.finalPrice,
+        invoice_nr: order._id
+    };
+      
+    createInvoice(invoice, "invoice.pdf");
+    await sendEmail(req.user.email, 'Ecommerce - invoice', 'welcome', {
+      path:'invoice.pdf',
+       contentType: 'application/pdf'
+    })
     return res.status(201).json({message:'order added successfully',order});
 }
 
