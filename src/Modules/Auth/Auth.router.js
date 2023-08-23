@@ -6,7 +6,7 @@ import * as validators from './Auth.validation.js';
 
 const router =Router();
 
-router.post('/signup',validation(validators.signupSchema),asyncHandler(AuthController.signup))
+router.post('/signup',validation(validators.signupSchema),AuthController.signup)
 router.post('/login' ,asyncHandler(AuthController.login))
 router.get('/confirmEmail/:token',validation(validators.token),asyncHandler( AuthController.confirmEmail));
 router.get('/NewconfirmEmail/:token',validation(validators.token),asyncHandler(AuthController.NewconfirmEmail));

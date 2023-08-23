@@ -17,10 +17,7 @@ export const createOrderWithItemsFromCart = joi.object({
     phoneNumber:joi.array().items(joi.string()).required(),
     paymentType:joi.string(),
     couponName:joi.string().min(2).max(20),
-    products:joi.array().items(joi.object({
-        productId:generalFeilds.id.required(),
-        qty:joi.number().required(),
-    })),
+ 
 }).required();
 
 export const cancelOrder = joi.object({

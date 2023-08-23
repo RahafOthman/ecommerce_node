@@ -19,7 +19,7 @@ export const signup= async (req,res,next)=>{
     const link = `${req.protocol}://${req.headers.host}/auth/confirmEmail/${token}`;
     const Rlink = `${req.protocol}://${req.headers.host}/auth/NewconfirmEmail/${refreshToken}`;
     
-    const html = `<a href="${link}">Verify Email</a> <br /> <br /> <a href="${Rlink}">send new email</a> `;
+    const html = `<a href="${link}">Verify Email</a> <br /> <br /> <a href="${Rlink}">send new email</a>`;
     await sendEmail(email, `confirm email`, html);
     const hashPassword = hash(password);
     const createUser = await userModel.create({userName, email, password: hashPassword});

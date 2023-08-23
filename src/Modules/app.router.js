@@ -23,7 +23,7 @@ import {fileURLToPath} from 'url';
 const initApp=(app,express)=>{
     connectDB();
     app.use(express.json());
-    
+    app.use('/logo',(express.static('logo.png')))
     app.use('/upload',express.static(fullPath));
     app.use("/auth", AuthRouter);
     app.use('/user', UserRouter);

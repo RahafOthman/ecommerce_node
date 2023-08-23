@@ -77,40 +77,23 @@ export const createOrder = async(req, res, next)=>{
             products:{productId:{$in:productIds}},
         }
     });
-    const invoice = {
-        shipping: {
-          name: req.user.userName,
-          address: "Betunia",
-          city: "Ramallah",
-          state:"west Bank",
-          country: "Palestine"
-        },
-        items: order.products,
-        subTotal,
-        total: order.finalPrice,
-        invoice_nr: order._id
-      };
-      
-    createInvoice(invoice, "invoice.pdf");
-    await sendEmail(req.user.email, 'Ecommerce - invoice', 'welcome', {
-        path:'invoice.pdf',
-        contentType: 'application/pdf'
-    })
+   
     return res.status(201).json({message:'order added successfully',order});
 }
 
 export const createOrderWithItemsFromCart = async(req,res,next)=>{
+
     const { address, phoneNumber, paymentType, couponName}= req.body;
     const finalProductsList = [];
     const productIds = [] ; 
     let subTotal  = 0 ;
     const cart = await cartModel.findOne({userId: req.user._id});
 
+    
     if(!cart?.products?.length){
         return next(new Error("Cart Empty", {cause:400}));
     }
     req.body.products = cart.products ; 
-   
     if(couponName){
         const coupon = await couponModel.findOne({name:couponName.toLowerCase()});
 
@@ -140,16 +123,22 @@ export const createOrderWithItemsFromCart = async(req,res,next)=>{
             stock:{$gte:product.qty},
             isDeleted: false
         });
+   
         if(!checkProduct){
             return next(new Error(`the product invalid ${checkProduct}`,{cause: 400}));
         }
+       
+
         product = product.toObject();
+        product.name = checkProduct.name;
         product.unitPrice = checkProduct.finalPrice ; 
         product.finalPrice = product.qty * checkProduct.finalPrice ; 
         subTotal += product.finalPrice;
         productIds.push(product.productId);
         finalProductsList.push(product);
     }
+    
+
     const order = await orderModel.create({
         userId: req.user._id,
         address,
@@ -158,11 +147,10 @@ export const createOrderWithItemsFromCart = async(req,res,next)=>{
         subTotal,
         couponId: req.body.coupon?._id,
         paymentType,
-        finalPrice: subTotal - (subTotal * ((req.body.coupon?.amount | 0)/ 100 )),
+        finalPrice: (subTotal - (subTotal * ((req.body.coupon?.amount | 0)/ 100 ))),
         status: (paymentType == 'card')? 'approved' : 'pending',
         updatedBy: req.user._id
     });
-
 
     if(req.body.coupon){
         await couponModel.updateOne({_id:req.body.coupon._id},{$addToSet:{usedBy:req.user._id}});
@@ -173,6 +161,25 @@ export const createOrderWithItemsFromCart = async(req,res,next)=>{
     }
     
     await cartModel.updateOne({userId:req.user._id},{products:[]});
+    const invoice = {
+        shipping: {
+          name: req.user.userName,
+          address: "Betunia",
+          city: "Ramallah",
+        state:"west Bank",
+         country: "Palestine"
+        },
+        items: order.products,
+        subTotal,
+        total: order.finalPrice,
+        invoice_nr: order._id
+    };
+      
+    createInvoice(invoice, "invoice.pdf");
+    await sendEmail(req.user.email, 'Ecommerce - invoice', 'welcome', {
+      path:'invoice.pdf',
+       contentType: 'application/pdf'
+    })
 
     return res.status(201).json({message:'order added successfully',order});
 
@@ -180,8 +187,10 @@ export const createOrderWithItemsFromCart = async(req,res,next)=>{
 
 export const cancelOrder = async(req,res,next)=>{
     const {orderId} = req.params;
+
     const {resonPreject} = req.body;
     const order = await orderModel.findOne({_id:orderId, userId:req.user._id});
+  
     if(!order || order.status != 'pending' || order.paymentType!= 'cash'){
         return next(new Error("can't cancel this order",{cause:400}));
     }
