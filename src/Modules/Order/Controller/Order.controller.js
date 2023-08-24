@@ -95,7 +95,7 @@ export const createOrder = async(req, res, next)=>{
     await sendEmail(req.user.email, 'Ecommerce - invoice', 'welcome', {
       path:'invoice.pdf',
        contentType: 'application/pdf'
-    })
+    });
     return res.status(201).json({message:'order added successfully',order});
 }
 
@@ -106,7 +106,6 @@ export const createOrderWithItemsFromCart = async(req,res,next)=>{
     const productIds = [] ; 
     let subTotal  = 0 ;
     const cart = await cartModel.findOne({userId: req.user._id});
-
     
     if(!cart?.products?.length){
         return next(new Error("Cart Empty", {cause:400}));
@@ -179,26 +178,6 @@ export const createOrderWithItemsFromCart = async(req,res,next)=>{
     }
     
     await cartModel.updateOne({userId:req.user._id},{products:[]});
-    const invoice = {
-        shipping: {
-          name: req.user.userName,
-          address: "Betunia",
-          city: "Ramallah",
-        state:"west Bank",
-         country: "Palestine"
-        },
-        items: order.products,
-        subTotal,
-        total: order.finalPrice,
-        invoice_nr: order._id
-    };
-      
-    createInvoice(invoice, "invoice.pdf");
-    await sendEmail(req.user.email, 'Ecommerce - invoice', 'welcome', {
-      path:'invoice.pdf',
-       contentType: 'application/pdf'
-    })
-
     return res.status(201).json({message:'order added successfully',order});
 
 };
